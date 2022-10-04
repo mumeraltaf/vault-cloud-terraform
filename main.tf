@@ -64,10 +64,11 @@ resource "vault_kv_secret" "ssh_key" {
 
 resource "openstack_compute_keypair_v2" "adp-terraform-network-key" {
   name       = "adp-terraform-network"
-  public_key = tls_private_key.ssh.public_key_pem
+  public_key = tls_private_key.ssh.public_key_openssh
 }
 
 resource "openstack_compute_instance_v2" "test-instance" {
+  depends_on      = [openstack_compute_keypair_v2.adp-terraform-network-key]
   name            = "test-instance"
   flavor_name     = "r3.xsmall"
   image_name      = "NeCTAR Debian 11 (Bullseye) amd64"
