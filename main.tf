@@ -9,7 +9,7 @@ terraform {
       version = "~> 1.48.0"
     }
     tls = {
-      source  = "hashicorp/tls"
+      source = "hashicorp/tls"
     }
   }
 }
@@ -51,7 +51,7 @@ resource "vault_mount" "terraform-secrets" {
 
 
 resource "vault_kv_secret" "ssh_key" {
-  path = "${vault_mount.terraform-secrets.path}/ssh_key"
+  path      = "${vault_mount.terraform-secrets.path}/ssh_key"
   data_json = jsonencode(
     {
       private_key = tls_private_key.ssh.private_key_pem,
@@ -61,19 +61,19 @@ resource "vault_kv_secret" "ssh_key" {
 }
 
 
-
-resource "openstack_compute_keypair_v2" "adp-terraform-test-key" {
-  name       = "adp-terraform-test"
+resource "openstack_compute_keypair_v2" "terraform-test-key" {
+  name       = "terraform-test"
   public_key = tls_private_key.ssh.public_key_openssh
 }
 
 resource "openstack_compute_instance_v2" "test-instance" {
-  depends_on      = [openstack_compute_keypair_v2.adp-terraform-test-key]
-  name            = "test-instance"
-  flavor_name     = "r3.xsmall"
-  image_name      = "NeCTAR Debian 11 (Bullseye) amd64"
-  key_pair        = openstack_compute_keypair_v2.adp-terraform-test-key.name
-  security_groups = ["default", "ssh-all", "https-int", "https-all"]
+  depends_on        = [openstack_compute_keypair_v2.terraform-test-key]
+  name              = "test-instance"
+  flavor_name       = "r3.xsmall"
+  image_name        = "NeCTAR Debian 11 (Bullseye) amd64"
+  key_pair          = openstack_compute_keypair_v2.terraform-test-key.name
+  security_groups   = ["default", "ssh-all", "https-int", "https-all"]
+  availability_zone = "melbourne-qh2"
 
   connection {
     user        = "debian"
@@ -82,7 +82,7 @@ resource "openstack_compute_instance_v2" "test-instance" {
   }
 
   provisioner file {
-    content = data.vault_kv_secret_v2.envfile.data.env
+    content     = data.vault_kv_secret_v2.envfile.data.env
     destination = "/home/debian/.env"
   }
 
