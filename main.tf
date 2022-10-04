@@ -73,7 +73,7 @@ resource "openstack_compute_instance_v2" "test-instance" {
   flavor_name     = "r3.xsmall"
   image_name      = "NeCTAR Debian 11 (Bullseye) amd64"
   key_pair        = openstack_compute_keypair_v2.adp-terraform-test-key.name
-  security_groups = ["default", "ssh-int", "https-int", "https-all"]
+  security_groups = ["default", "ssh-all", "https-int", "https-all"]
 
   connection {
     user        = "debian"
